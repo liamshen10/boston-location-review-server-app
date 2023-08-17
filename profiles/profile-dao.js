@@ -14,5 +14,36 @@ async function createProfile(profileData) {
   return newProfile; // Return the newly created profile
 }
 
+const followUser = async (userId, userIdToFollow) => {
+  return Profile.updateOne(
+    { userId: userId },
+    { $addToSet: { following: userIdToFollow } }
+  );
+};
 
-export { getProfile, updateProfile, createProfile  };
+const unfollowUser = async (userId, userIdToUnfollow) => {
+  return Profile.updateOne(
+    { userId: userId },
+    { $pull: { following: userIdToUnfollow } }
+  );
+};
+
+const favoriteLocation = async (userId, locationId) => {
+  return Profile.updateOne(
+    { userId: userId },
+    { $addToSet: { favorites: locationId } }
+  );
+};
+
+const unfavoriteLocation = async (userId, locationId) => {
+  return Profile.updateOne(
+    { userId: userId },
+    { $pull: { favorites: locationId } }
+  );
+};
+
+export { favoriteLocation, unfavoriteLocation };
+
+
+
+export { getProfile, updateProfile, createProfile , followUser, unfollowUser};
