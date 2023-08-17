@@ -1,10 +1,10 @@
 import express from 'express';
 import session from "express-session";
 import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
 import AuthController from './users/auth-controller.js';
 import cors from 'cors'
 import HelloController from './hello-controller.js';
+import "dotenv/config";
 
 const app = express();
 app.use(cors({
