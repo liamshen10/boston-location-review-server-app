@@ -8,4 +8,11 @@ async function updateProfile(profileId, profileUpdate) {
   return await ProfileModel.findByIdAndUpdate(profileId, profileUpdate, { new: true });
 }
 
-export { getProfile, updateProfile };
+
+async function createProfile(profileData) {
+  const newProfile = await ProfileModel.create(profileData);
+  return newProfile; // Return the newly created profile
+}
+
+
+export { getProfile, updateProfile, createProfile  };
