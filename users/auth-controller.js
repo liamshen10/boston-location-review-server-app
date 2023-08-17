@@ -20,6 +20,7 @@ const loginUser = async (req, res) => {
   }
 }
 
+
 const AuthController = (app) => {
   app.post('/register', registerUser);
   app.post('/login', loginUser);
