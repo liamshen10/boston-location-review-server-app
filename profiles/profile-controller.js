@@ -23,6 +23,7 @@ const updateProfile = async (req, res) => {
   const {userId} = req.params;
   console.log(userId);
   const profileUpdate = req.body;
+  console.log(profileUpdate);
 
   const updatedProfile = await profileDao.updateProfile(userId, profileUpdate);
 
