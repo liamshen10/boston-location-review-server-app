@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   role: { type: String, required: true },
   email: { type: String, required: false },
   phone: { type: String, required: false },
-  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'reviews' }],
 }, { collection: "users" });
 
 export default UserSchema;

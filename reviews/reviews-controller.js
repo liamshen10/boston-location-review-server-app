@@ -1,4 +1,5 @@
 import * as reviewDao from './reviews-dao.js';
+import * as userDao from '../users/users-dao.js';
 
 const getReviewsByLocation = async (req, res) => {
   const { location_id } = req.params;
@@ -13,8 +14,10 @@ const getReviewsByLocation = async (req, res) => {
 const createReview = async (req, res) => {
     try {
       const reviewData = req.body;
+      const userId = req.body.userId;
       const newReview = await reviewDao.createReview(reviewData);
       if (newReview) {
+        await userDao.updateUserReviews(userId, newReview._id);
         return res.status(201).json(newReview);
       } else {
         return res.status(500).send('Failed to create review');

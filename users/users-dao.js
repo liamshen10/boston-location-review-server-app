@@ -16,5 +16,13 @@ async function updateProfile(id, user) {
   return UserModel.updateOne({ _id: id }, { $set: user })
 }
 
+async function updateUserReviews(userId, reviewId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $push: { reviews: reviewId } },
+    { new: true }
+  );
+}
 
-export { createUser, findUserByUsername, getProfile, updateProfile };
+
+export { createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
