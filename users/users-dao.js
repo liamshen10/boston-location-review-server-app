@@ -8,4 +8,13 @@ async function findUserByUsername(username) {
   return await UserModel.findOne({ username });
 }
 
-export { createUser, findUserByUsername };
+async function getProfile(profileId) {
+  return await UserModel.findById(profileId);
+}
+
+async function updateProfile(id, user) {
+  return UserModel.updateOne({ _id: id }, { $set: user })
+}
+
+
+export { createUser, findUserByUsername, getProfile, updateProfile };

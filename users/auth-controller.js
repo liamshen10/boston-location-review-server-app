@@ -1,25 +1,19 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import * as userDao from './users-dao.js';
-import * as profileDao from '../profiles/profile-dao.js';
+
 
 const registerUser = async (req, res) => {
   const { username, password, role } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await userDao.createUser({ username, password: hashedPassword, role });
 
-
   if (user) {
-    const profile = await profileDao.createProfile({ userId: user._id, email: '', phone: '' });
     req.session["currentUser"] = user;
-    if (profile) {
-      res.json(user);
+    res.json(user);
     } else {
       res.status(500).send('Error creating profile.');
     }
-  } else {
-    res.status(500).send('Error registering user.');
-  }
 };
 
 
@@ -35,9 +29,48 @@ const loginUser = async (req, res) => {
 }
 
 
+const getProfile = async (req, res) => {
+  const { profileId } = req.params;
+  const profile = await userDao.getProfile(profileId);
+
+  
+  if (profile) {
+    // Hide sensitive information for other users
+    if (req.user && req.user._id !== profile.userId) {
+      profile.email = undefined;
+      profile.phone = undefined;
+    }
+
+    res.json(profile);
+  } else {
+    res.status(404).send('Profile not found.');
+  }
+}
+
+const updateProfile = async (req, res) => {
+  const {_id} = req.params;
+  console.log(_id);
+  const profileUpdate = req.body;
+  console.log(profileUpdate);
+
+  const updatedProfile = await userDao.updateProfile(_id, profileUpdate);
+  console.log(updatedProfile);
+  if (updatedProfile) {
+  const user = await userDao.getProfile(_id);
+  req.session['currentUser'] = user;
+  res.json(user);
+  }
+  else {
+    res.send("Profile Not Found!");
+  }
+}
+
+
 const AuthController = (app) => {
   app.post('/register', registerUser);
   app.post('/login', loginUser);
+  app.get('/profile/:profileId', getProfile);
+  app.put('/profile/:_id', updateProfile);
 }
 
 export default AuthController;
