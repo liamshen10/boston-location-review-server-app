@@ -65,12 +65,19 @@ const updateProfile = async (req, res) => {
   }
 }
 
+const logout = async (req, res) => {
+  req.session.destroy();
+  res.sendStatus(200);
+};
+
+
 
 const AuthController = (app) => {
   app.post('/register', registerUser);
   app.post('/login', loginUser);
   app.get('/profile/:profileId', getProfile);
   app.put('/profile/:_id', updateProfile);
+  app.post("/logout",   logout);
 }
 
 export default AuthController;
