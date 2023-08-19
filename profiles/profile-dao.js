@@ -1,11 +1,11 @@
 import ProfileModel from './profile-model.js';
 
 async function getProfile(profileId) {
-  return await ProfileModel.findById(profileId).populate('following followers favorites reviews bookmarks');
+  return await ProfileModel.findById(profileId);
 }
 
-async function updateProfile(profileId, profileUpdate) {
-  return await ProfileModel.findByIdAndUpdate(profileId, profileUpdate, { new: true });
+async function updateProfile(id, user) {
+  return ProfileModel.updateOne({ userId: id }, { $set: user })
 }
 
 

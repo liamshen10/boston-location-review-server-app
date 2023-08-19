@@ -7,11 +7,11 @@ const registerUser = async (req, res) => {
   const { username, password, role } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await userDao.createUser({ username, password: hashedPassword, role });
-
+  req.session["currentUser"] = user;
+  res.json('user');
   if (user) {
-    // Create a new profile for the registered user
+    
     const profile = await profileDao.createProfile({ userId: user._id, email: '', phone: '' });
-
     if (profile) {
       res.send('User registered successfully with a profile.');
     } else {
