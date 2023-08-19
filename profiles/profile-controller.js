@@ -1,9 +1,11 @@
 import * as profileDao from './profile-dao.js';
+import * as userDao from '../users/users-dao.js';
 
 const getProfile = async (req, res) => {
   const { profileId } = req.params;
   const profile = await profileDao.getProfile(profileId);
 
+  
   if (profile) {
     // Hide sensitive information for other users
     if (req.user && req.user._id !== profile.userId) {
@@ -18,31 +20,19 @@ const getProfile = async (req, res) => {
 }
 
 const updateProfile = async (req, res) => {
-  const userId = req.user._id; // Assuming the JWT middleware sets the authenticated user data in req.user
+  const {userId} = req.params;
+  console.log(userId);
   const profileUpdate = req.body;
 
-  // Find the profile associated with the authenticated user
-  const profile = await profileDao.getProfileByUserId(userId);
+  const updatedProfile = await profileDao.updateProfile(userId, profileUpdate);
 
-  // Check if the profile exists
-  if (!profile) {
-    return res.status(404).send('Profile not found.');
-  }
-
-  // Update the profile
-  const updatedProfile = await profileDao.updateProfile(profile._id, profileUpdate);
-
-  if (updatedProfile) {
-    res.json(updatedProfile);
-  } else {
-    res.status(500).send('Error updating profile.');
-  }
+  res.json(updatedProfile);
 }
 
 
 const ProfileController = (app) => {
   app.get('/profile/:profileId', getProfile);
-  app.put('/profile', updateProfile);
+  app.put('/profile/:userId', updateProfile);
   // ... add other profile routes as needed
 }
 
