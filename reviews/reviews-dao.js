@@ -11,8 +11,8 @@ const createReview = async (reviewData) => {
 };
 
 
-const getReview = async (reviewId) => {
-  return await ReviewModel.findById(reviewId);
+const getReview = async (_id) => {
+  return await ReviewModel.findById(_id);
 };
 
 const deleteReview = async (reviewId) => {

@@ -12,10 +12,14 @@ const getReviewsByLocation = async (req, res) => {
 };
 
 const getReviewById = async (req, res) => {
-  const { reviewId } = req.params;
+  console.log("Req.params: ", req.params);
+  const { _id } = req.params;
+  console.log("Review ID:", _id);
   try {
-    const review = await reviewDao.getReview(reviewId);
+    const review = await reviewDao.getReview(_id);
+    console.log("Review: ", review);
     if (review) {
+
       res.json(review);
     } else {
       res.status(404).send('Review not found');
@@ -68,7 +72,7 @@ const deleteReview = async (req, res) => {
 
 const ReviewsController = (app) => {
   app.get('/reviews/:location_id', getReviewsByLocation);
-  app.get('/review/:reviewId', getReviewById);
+  app.get('/review/:_id', getReviewById);
   app.post('/reviews', createReview);
   app.delete('/reviews/:reviewId', deleteReview);
 };
