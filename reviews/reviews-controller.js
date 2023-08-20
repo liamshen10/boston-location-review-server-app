@@ -67,8 +67,12 @@ const createReview = async (req, res) => {
         location_id: review.location_id,
         timestamp: review.timestamp
       };
-
+      
       await reviewDao.createDeletedReview(deletedReview);
+      console.log("Review UserID: ", review.userId);
+      console.log("Review UserID: ", review.userId);
+      await userDao.deleteReviewFromUser(review.userId, review._id);
+      
 
       // Delete the review from the ReviewModel
       await reviewDao.deleteReview(_id);

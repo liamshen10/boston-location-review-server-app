@@ -37,5 +37,12 @@ const addDeletedReviewToAdmin = async (reviewId, userId) => {
   );
 };
 
+const deleteReviewFromUser = async (userId, reviewId) => {
+  return await UserModel.findByIdAndUpdate(
+    userId,
+    { $pull: { reviews: reviewId } },
+    { new: true }
+  );
+};
 
-export { addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
+export { deleteReviewFromUser, addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
