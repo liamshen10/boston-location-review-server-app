@@ -1,7 +1,12 @@
 import UserModel from './users-model.js';
+import AdminModel from './admin-model.js';
 
 async function createUser(user) {
   return await UserModel.create(user);
+}
+
+async function createAdminUser(adminUser) {
+  return await AdminModel.create(adminUser);
 }
 
 async function findUserByUsername(username) {
@@ -24,5 +29,13 @@ async function updateUserReviews(userId, reviewId) {
   );
 }
 
+const addDeletedReviewToAdmin = async (reviewId, userId) => {
+  return await UserModel.findByIdAndUpdate(
+    userId,
+    { $push: { reviews_deleted: reviewId } },
+    { new: true }
+  );
+};
 
-export { createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
+
+export { addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };

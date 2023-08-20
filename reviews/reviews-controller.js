@@ -47,34 +47,42 @@ const createReview = async (req, res) => {
   };
   
 
-const deleteReview = async (req, res) => {
-  const { reviewId } = req.params;
-  const userId = req.user._id;
-  const userRole = req.user.role;
+  const deleteReview = async (req, res) => {
+    console.log("Params: ", req.params);
+    const { _id, adminId } = req.params;
+    console.log("Body: ", req.body);
+    try {
+      const review = await reviewDao.getReview(_id);
+      console.log(review);
+      if (!review) {
+        return res.status(404).send('Review not found.');
+      }
+  
+      // Create a new document in the DeletedReviewModel
+      const deletedReview = {
+        deletedreview_id: review._id,
+        userId: review.userId,
+        content: review.content,
+        stars: review.stars,
+        location_id: review.location_id,
+        timestamp: review.timestamp
+      };
 
-  try {
-    const review = await reviewDao.getReview(reviewId);
+      await reviewDao.createDeletedReview(deletedReview);
 
-    if (!review) {
-      return res.status(404).send('Review not found.');
+      // Delete the review from the ReviewModel
+      await reviewDao.deleteReview(_id);
+      res.status(200).json({ _id: _id });
+    } catch (error) {
+      res.status(500);
     }
-
-    if (userRole === 'administrator' || (userRole === 'reviewer' && review.user_id === userId)) {
-      await reviewDao.deleteReview(reviewId);
-      res.status(204).send();
-    } else {
-      res.status(403).send('You do not have permission to delete this review.');
-    }
-  } catch (error) {
-    res.status(500).send('Error deleting review:', error);
-  }
-};
-
+  };
+  
 const ReviewsController = (app) => {
   app.get('/reviews/:location_id', getReviewsByLocation);
   app.get('/review/:_id', getReviewById);
   app.post('/reviews', createReview);
-  app.delete('/reviews/:reviewId', deleteReview);
+  app.delete('/reviews/:_id/', deleteReview);
 };
 
 export default ReviewsController;

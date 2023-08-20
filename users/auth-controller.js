@@ -11,10 +11,19 @@ const registerUser = async (req, res) => {
   if (user) {
     req.session["currentUser"] = user;
     res.json(user);
-    } else {
-      res.status(500).send('Error creating profile.');
+
+    // Create a new admin object if the role is 'administrator'
+    if (role === 'administrator') {
+      const adminUser = await userDao.createAdminUser({ userId: user._id });
+      if (!adminUser) {
+        console.error('Error creating admin user');
+      }
     }
+  } else {
+    res.status(500).send('Error creating profile.');
+  }
 };
+
 
 
 const loginUser = async (req, res) => {

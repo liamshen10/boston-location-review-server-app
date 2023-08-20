@@ -1,3 +1,4 @@
+import DeletedReviewModel from './deleted-reviews-model.js';
 import ReviewModel from './reviews-model.js';
 
 const getReviewsByLocation = async (location_id) => {
@@ -7,6 +8,11 @@ const getReviewsByLocation = async (location_id) => {
 
 const createReview = async (reviewData) => {
   const review = new ReviewModel(reviewData);
+  return await review.save();
+};
+
+const createDeletedReview = async (reviewData) => {
+  const review = new DeletedReviewModel(reviewData);
   return await review.save();
 };
 
@@ -20,6 +26,7 @@ const deleteReview = async (reviewId) => {
 };
 
 export {
+  createDeletedReview,
   getReviewsByLocation,
   createReview,
   getReview,
