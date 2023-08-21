@@ -85,12 +85,27 @@ const createReview = async (req, res) => {
       res.status(500);
     }
   };
+
+
+  const getDeletedReviewsByAdminId = async (req, res) => {
+    console.log(req.params);
+    const { userId } = req.params;
+    try {
+      
+      const deletedReviews = await userDao.getReviewsForAdmin(userId);
+      console.log('Home Deleted Reviews:', deletedReviews);
+      res.json(deletedReviews);
+    } catch (error) {
+      res.status(500).send('Error fetching deleted reviews:', error);
+    }
+  };
   
 const ReviewsController = (app) => {
   app.get('/reviews/:location_id', getReviewsByLocation);
   app.get('/review/:_id', getReviewById);
   app.post('/reviews', createReview);
   app.delete('/review/:_id', deleteReview);
+  app.get('/review/reviews_deleted/:userId', getDeletedReviewsByAdminId); // new endpoint
 
 };
 

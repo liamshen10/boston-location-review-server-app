@@ -5,6 +5,10 @@ async function createUser(user) {
   return await UserModel.create(user);
 }
 
+async function fetchUsers() {
+  return await UserModel.find({ role: 'reviewer' });
+};
+
 async function createAdminUser(adminUser) {
   return await AdminModel.create(adminUser);
 }
@@ -61,4 +65,4 @@ const getReviewsForAdmin = async (userId) => {
 
 
 
-export { getReviewsForAdmin, getReviewsForUser, deleteReviewFromUser, addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
+export { fetchUsers, getReviewsForAdmin, getReviewsForUser, deleteReviewFromUser, addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };

@@ -89,6 +89,15 @@ const logout = async (req, res) => {
   res.sendStatus(200);
 };
 
+const fetchUsers = async (req, res) => {
+  try {
+    const users = await userDao.fetchUsers();
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send('Error fetching users.');
+  }
+};
 
 
 const AuthController = (app) => {
@@ -97,6 +106,7 @@ const AuthController = (app) => {
   app.get('/profile/:profileId', getProfile);
   app.put('/profile/:_id', updateProfile);
   app.post("/logout",   logout);
+  app.get("/users", fetchUsers);
 }
 
 export default AuthController;
