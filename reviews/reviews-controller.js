@@ -49,7 +49,8 @@ const createReview = async (req, res) => {
 
   const deleteReview = async (req, res) => {
     console.log("Params: ", req.params);
-    const { _id, adminId } = req.params;
+    const { _id } = req.params;
+    const { adminId } = req.body;
     console.log("Body: ", req.body);
     try {
       const review = await reviewDao.getReview(_id);
@@ -68,15 +69,18 @@ const createReview = async (req, res) => {
         timestamp: review.timestamp
       };
       
-      await reviewDao.createDeletedReview(deletedReview);
-      console.log("Review UserID: ", review.userId);
-      console.log("Review UserID: ", review.userId);
+      const newDeletedReview = await reviewDao.createDeletedReview(deletedReview);
+      console.log("Deleted Review: ", newDeletedReview._id);
+
+      console.log("Review ID: ", review._id);
       await userDao.deleteReviewFromUser(review.userId, review._id);
+      await userDao.addDeletedReviewToAdmin(newDeletedReview._id, adminId._id);
       
 
       // Delete the review from the ReviewModel
       await reviewDao.deleteReview(_id);
-      res.status(200).json({ _id: _id });
+
+      res.status(200).json({ _id: _id, deletedReview: newDeletedReview });
     } catch (error) {
       res.status(500);
     }
@@ -86,7 +90,8 @@ const ReviewsController = (app) => {
   app.get('/reviews/:location_id', getReviewsByLocation);
   app.get('/review/:_id', getReviewById);
   app.post('/reviews', createReview);
-  app.delete('/reviews/:_id/', deleteReview);
+  app.delete('/review/:_id', deleteReview);
+
 };
 
 export default ReviewsController;

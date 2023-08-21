@@ -25,13 +25,23 @@ const registerUser = async (req, res) => {
 };
 
 
-
 const loginUser = async (req, res) => {
   const { username, password } = req.body;
   const user = await userDao.findUserByUsername(username);
   if (user && await bcrypt.compare(password, user.password)) {
     const token = jwt.sign({ userId: user._id, role: user.role }, 'secret', { expiresIn: '1h' });
-    res.json(user);
+
+    // Fetch all reviews for the logged-in user if the user is a reviewer
+    let reviews = [];
+    if (user.role === 'reviewer') {
+      reviews = await userDao.getReviewsForUser(user._id);
+      console.log("Reviewer RErviews", reviews);
+    } else if (user.role === "administrator") {
+      reviews = await userDao.getReviewsForAdmin(user._id);
+      console.log("Admin Reviews:", reviews);
+    }
+
+    res.json({ user, reviews }); // Include the reviews in the response
   } else {
     res.status(401).send('Invalid credentials.');
   }

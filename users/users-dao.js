@@ -29,13 +29,14 @@ async function updateUserReviews(userId, reviewId) {
   );
 }
 
-const addDeletedReviewToAdmin = async (reviewId, userId) => {
-  return await UserModel.findByIdAndUpdate(
-    userId,
+const addDeletedReviewToAdmin = async (reviewId, adminId) => {
+  return await AdminModel.findOneAndUpdate(
+    { userId: adminId },
     { $push: { reviews_deleted: reviewId } },
     { new: true }
   );
 };
+
 
 const deleteReviewFromUser = async (userId, reviewId) => {
   return await UserModel.findByIdAndUpdate(
@@ -45,4 +46,19 @@ const deleteReviewFromUser = async (userId, reviewId) => {
   );
 };
 
-export { deleteReviewFromUser, addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
+const getReviewsForUser = async (userId) => {
+  const user = await UserModel.findById(userId).populate('reviews');
+  return user.reviews;
+};
+
+const getReviewsForAdmin = async (userId) => {
+  const user = await AdminModel.findOne({ userId: userId }).populate('reviews_deleted');
+  console.log("Admin User: ", user);
+  return user.reviews_deleted;
+};
+
+
+
+
+
+export { getReviewsForAdmin, getReviewsForUser, deleteReviewFromUser, addDeletedReviewToAdmin, createAdminUser, createUser, findUserByUsername, getProfile, updateProfile, updateUserReviews };
