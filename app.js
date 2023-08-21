@@ -5,7 +5,6 @@ import AuthController from './users/auth-controller.js';
 import cors from 'cors'
 import HelloController from './hello-controller.js';
 import "dotenv/config";
-import ProfileController from './profiles/profile-controller.js';
 import ReviewsController from './reviews/reviews-controller.js';
 
 
@@ -35,7 +34,6 @@ const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || 'mongodb://127.0.0
 mongoose.connect(CONNECTION_STRING);
 app.use(express.json());
 HelloController(app);
-ProfileController(app);
 ReviewsController(app);
 AuthController(app);
 app.listen(process.env.PORT || 4000);

@@ -1,4 +1,5 @@
 import * as reviewDao from './reviews-dao.js';
+import * as userDao from '../users/users-dao.js';
 
 const getReviewsByLocation = async (req, res) => {
   const { location_id } = req.params;
@@ -10,11 +11,31 @@ const getReviewsByLocation = async (req, res) => {
   }
 };
 
+const getReviewById = async (req, res) => {
+  console.log("Req.params: ", req.params);
+  const { _id } = req.params;
+  console.log("Review ID:", _id);
+  try {
+    const review = await reviewDao.getReview(_id);
+    console.log("Review: ", review);
+    if (review) {
+
+      res.json(review);
+    } else {
+      res.status(404).send('Review not found');
+    }
+  } catch (error) {
+    res.status(500).send('Error fetching review:', error);
+  }
+};
+
 const createReview = async (req, res) => {
     try {
       const reviewData = req.body;
+      const userId = req.body.userId;
       const newReview = await reviewDao.createReview(reviewData);
       if (newReview) {
+        await userDao.updateUserReviews(userId, newReview._id);
         return res.status(201).json(newReview);
       } else {
         return res.status(500).send('Failed to create review');
@@ -26,33 +47,66 @@ const createReview = async (req, res) => {
   };
   
 
-const deleteReview = async (req, res) => {
-  const { reviewId } = req.params;
-  const userId = req.user._id;
-  const userRole = req.user.role;
+  const deleteReview = async (req, res) => {
+    console.log("Params: ", req.params);
+    const { _id } = req.params;
+    const { adminId } = req.body;
+    console.log("Body: ", req.body);
+    try {
+      const review = await reviewDao.getReview(_id);
+      console.log(review);
+      if (!review) {
+        return res.status(404).send('Review not found.');
+      }
+  
+      // Create a new document in the DeletedReviewModel
+      const deletedReview = {
+        deletedreview_id: review._id,
+        userId: review.userId,
+        content: review.content,
+        stars: review.stars,
+        location_id: review.location_id,
+        timestamp: review.timestamp
+      };
+      
+      const newDeletedReview = await reviewDao.createDeletedReview(deletedReview);
+      console.log("Deleted Review: ", newDeletedReview._id);
 
-  try {
-    const review = await reviewDao.getReview(reviewId);
+      console.log("Review ID: ", review._id);
+      await userDao.deleteReviewFromUser(review.userId, review._id);
+      await userDao.addDeletedReviewToAdmin(newDeletedReview._id, adminId._id);
+      
 
-    if (!review) {
-      return res.status(404).send('Review not found.');
+      // Delete the review from the ReviewModel
+      await reviewDao.deleteReview(_id);
+
+      res.status(200).json({ _id: _id, deletedReview: newDeletedReview });
+    } catch (error) {
+      res.status(500);
     }
+  };
 
-    if (userRole === 'administrator' || (userRole === 'reviewer' && review.user_id === userId)) {
-      await reviewDao.deleteReview(reviewId);
-      res.status(204).send();
-    } else {
-      res.status(403).send('You do not have permission to delete this review.');
+
+  const getDeletedReviewsByAdminId = async (req, res) => {
+    console.log(req.params);
+    const { userId } = req.params;
+    try {
+      
+      const deletedReviews = await userDao.getReviewsForAdmin(userId);
+      console.log('Home Deleted Reviews:', deletedReviews);
+      res.json(deletedReviews);
+    } catch (error) {
+      res.status(500).send('Error fetching deleted reviews:', error);
     }
-  } catch (error) {
-    res.status(500).send('Error deleting review:', error);
-  }
-};
-
+  };
+  
 const ReviewsController = (app) => {
   app.get('/reviews/:location_id', getReviewsByLocation);
+  app.get('/review/:_id', getReviewById);
   app.post('/reviews', createReview);
-  app.delete('/reviews/:reviewId', deleteReview);
+  app.delete('/review/:_id', deleteReview);
+  app.get('/review/reviews_deleted/:userId', getDeletedReviewsByAdminId); // new endpoint
+
 };
 
 export default ReviewsController;
